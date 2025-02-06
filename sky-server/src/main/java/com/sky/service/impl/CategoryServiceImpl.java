@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -40,15 +42,51 @@ public class CategoryServiceImpl implements CategoryService {
 
     /**
      * 分页查询
-     *
      * @param categoryPageQueryDTO
      * @return
      */
     @Override
     public PageResult page(CategoryPageQueryDTO categoryPageQueryDTO) {
         PageHelper.startPage(categoryPageQueryDTO.getPage(), categoryPageQueryDTO.getPageSize());
-        Page<Category> page = categoryMapper.list(categoryPageQueryDTO.getName(), categoryPageQueryDTO.getType());
+        Page<Category> page = categoryMapper.pageList(categoryPageQueryDTO.getName(), categoryPageQueryDTO.getType());
         PageResult pageResult = new PageResult(page.getTotal(), page.getResult());
         return pageResult;
+    }
+
+    /**
+     * 启用或禁用分类
+     * @param status
+     * @param id
+     */
+    @Override
+    public void startOrStop(Integer status, Long id) {
+        Category category = Category.builder()
+                .id(id)
+                .status(status)
+                .build();
+        categoryMapper.update(category);
+    }
+
+    /**
+     * 修改分类信息
+     * @param categoryDTO
+     */
+    @Override
+    public void updateCategory(CategoryDTO categoryDTO) {
+        Category category = new Category();
+        BeanUtils.copyProperties(categoryDTO, category);
+        category.setUpdateTime(LocalDateTime.now());
+        category.setUpdateUser(BaseContext.getCurrentId());
+        categoryMapper.update(category);
+    }
+
+    /**
+     * 根据类型查询分类
+     * @param type
+     * @return
+     */
+    @Override
+    public List<Category> findByType(Integer type) {
+        return categoryMapper.list(type);
     }
 }
