@@ -40,4 +40,10 @@ public interface CategoryService {
      * @return
      */
     List<Category> findByType(Integer type);
+
+    /**
+     * 根据id删除分类
+     * @param id
+     */
+    void deleteCategory(Long id);
 }
