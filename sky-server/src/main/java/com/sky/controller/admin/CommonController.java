@@ -21,17 +21,22 @@ public class CommonController {
     @Autowired
     private AliOssUtil aliOssUtil;
 
+    /**
+     * 文件上传
+     * @param file
+     * @return
+     */
     @PostMapping("/upload")
     public Result upload(MultipartFile file) {
         log.info("文件上传：{}", file);
 
         try {
-        String originalFilename = file.getOriginalFilename();
-        String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-        String objectName = UUID.randomUUID().toString() + extension;
-
+            String originalFilename = file.getOriginalFilename();
+            String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            String objectName = UUID.randomUUID().toString() + extension;
 
             String filePath = aliOssUtil.upload(file.getBytes(), objectName);
+            return Result.success(filePath);
         } catch (IOException e) {
             log.error("文件上传失败：{}", e);
         }
