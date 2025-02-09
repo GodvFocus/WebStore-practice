@@ -6,4 +6,11 @@
     <select id="countByDishId" resultType="java.lang.Integer">
         select count(setmeal_id) from setmeal_dish where setmeal_dish.dish_id = #{dishId}
     </select>
+
+    <insert id="insertSetmealDish">
+        insert into setmeal_dish (setmeal_id, dish_id, name, price, copies) VALUES
+        <foreach collection="list" item="sd" separator=",">
+            (#{sd.setmealId}, #{sd.dishId}, #{sd.name}, #{sd.price}, #{sd.copies})
+        </foreach>
+    </insert>
 </mapper>
