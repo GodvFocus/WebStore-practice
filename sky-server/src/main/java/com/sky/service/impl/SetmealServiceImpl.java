@@ -6,6 +6,7 @@ import com.sky.constant.MessageConstant;
 import com.sky.constant.StatusConstant;
 import com.sky.dto.SetmealDTO;
 import com.sky.dto.SetmealPageQueryDTO;
+import com.sky.entity.Dish;
 import com.sky.entity.Setmeal;
 import com.sky.entity.SetmealDish;
 import com.sky.exception.DeletionNotAllowedException;
@@ -140,15 +141,16 @@ public class SetmealServiceImpl implements  SetmealService {
     @Override
     public void StartOrStop(Integer status, Long id) {
         // 判断套餐所含菜品是否有停售状态的 如果有则无法启售
-//        SetmealVO setmealVO = setmealMapper.getWithSetmealDishById(id);
-        List<SetmealDish> setmealDishList = setmealDishMapper.getBySetmealId(id);
-        setmealDishList.forEach(setmealDish -> {
-            // 获取每个菜品的状态
-            Integer DishStatus = dishMapper.getById(setmealDish.getDishId()).getStatus();
-            if(DishStatus == StatusConstant.DISABLE){
-                throw new SetmealEnableFailedException(MessageConstant.SETMEAL_ENABLE_FAILED);
+        if(status == StatusConstant.ENABLE){
+            List<Dish> dishList = dishMapper.getBySetmealId(id);
+            if(dishList != null && dishList.size()>0){
+                dishList.forEach(dish -> {
+                    if(dish.getStatus() == StatusConstant.DISABLE){
+                        throw new SetmealEnableFailedException(MessageConstant.SETMEAL_ENABLE_FAILED);
+                    }
+                });
             }
-        });
+        }
 
         Setmeal setmeal = Setmeal.builder()
                 .id(id)
