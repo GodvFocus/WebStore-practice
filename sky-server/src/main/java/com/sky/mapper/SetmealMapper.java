@@ -57,4 +57,11 @@ public interface SetmealMapper {
      */
     @Select("select s.*, c.name category_name from setmeal s left outer join category c on s.category_id = c.id where s.id = #{id}")
     SetmealVO getById(Long id);
+
+    /**
+     * 修改菜品信息
+     * @param setmeal
+     */
+    @AutoFill(OperationType.UPDATE)
+    void update(Setmeal setmeal);
 }
