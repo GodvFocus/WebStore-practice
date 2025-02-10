@@ -88,4 +88,17 @@ public class SetmealController {
         return Result.success();
     }
 
+    /**
+     * 启售/停售套餐
+     * @param status
+     * @param id
+     * @return
+     */
+    @PostMapping("/status/{status}")
+    @ApiOperation("启售/停售套餐")
+    public Result StartOrStopSetmeal(@PathVariable Integer status, Long id){
+        log.info("将id{}的套餐状态修改为{}", id, status);
+        setmealService.StartOrStop(status, id);
+        return Result.success();
+    }
 }
