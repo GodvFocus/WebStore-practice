@@ -16,38 +16,38 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Configuration
 @Slf4j
 public class RedisConfiguration {
-//    @Bean
-//    public RedisTemplate redisTemplate(RedisConnectionFactory redisConnectionFactory) {
-//        log.info("开始创建RedisTemplate对象");
-//        RedisTemplate redisTemplate = new RedisTemplate();
-//        // 设置redis连接工厂对象
-//        redisTemplate.setConnectionFactory(redisConnectionFactory);
-//        // 设置key的序列化器
-//        redisTemplate.setKeySerializer(new StringRedisSerializer());
-//        return redisTemplate;
-//    }
     @Bean
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory){
-        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+    public RedisTemplate redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        log.info("开始创建RedisTemplate对象");
+        RedisTemplate redisTemplate = new RedisTemplate();
+        // 设置redis连接工厂对象
         redisTemplate.setConnectionFactory(redisConnectionFactory);
-        //设置value的序列化方式json
-        redisTemplate.setValueSerializer(redisSerializer());
-        //设置key序列化方式String
+        // 设置key的序列化器
         redisTemplate.setKeySerializer(new StringRedisSerializer());
-        //设置hash key序列化方式String
-        redisTemplate.setHashKeySerializer(new StringRedisSerializer());
-        //设置hash value序列化json
-        redisTemplate.setHashValueSerializer(redisSerializer());
-        redisTemplate.afterPropertiesSet();
         return redisTemplate;
     }
-
-    public RedisSerializer<Object> redisSerializer() {
-        //创建JSON序列化器
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-        //必须设置，否则无法序列化实体类对象
-        objectMapper.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL);
-        return new GenericJackson2JsonRedisSerializer(objectMapper);
-    }
+//    @Bean
+//    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory){
+//        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+//        redisTemplate.setConnectionFactory(redisConnectionFactory);
+//        //设置value的序列化方式json
+//        redisTemplate.setValueSerializer(redisSerializer());
+//        //设置key序列化方式String
+//        redisTemplate.setKeySerializer(new StringRedisSerializer());
+//        //设置hash key序列化方式String
+//        redisTemplate.setHashKeySerializer(new StringRedisSerializer());
+//        //设置hash value序列化json
+//        redisTemplate.setHashValueSerializer(redisSerializer());
+//        redisTemplate.afterPropertiesSet();
+//        return redisTemplate;
+//    }
+//
+//    public RedisSerializer<Object> redisSerializer() {
+//        //创建JSON序列化器
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+//        //必须设置，否则无法序列化实体类对象
+//        objectMapper.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL);
+//        return new GenericJackson2JsonRedisSerializer(objectMapper);
+//    }
 }
