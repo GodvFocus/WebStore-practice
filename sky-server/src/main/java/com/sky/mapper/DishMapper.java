@@ -82,4 +82,11 @@ public interface DishMapper {
     // 左连接把二者交集的左表全部提取出来
     @Select("select d.* from dish d left join setmeal_dish sd on d.id = sd.dish_id where sd.setmeal_id = #{id}")
     List<Dish> getBySetmealId(Long id);
+
+    /**
+     * 条件查询菜品
+     * @param dish
+     * @return
+     */
+    List<Dish> list(Dish dish);
 }
