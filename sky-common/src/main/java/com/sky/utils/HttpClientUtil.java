@@ -41,6 +41,7 @@ public class HttpClientUtil {
         CloseableHttpResponse response = null;
 
         try{
+            // 将每个参数添加到URL中
             URIBuilder builder = new URIBuilder(url);
             if(paramMap != null){
                 for (String key : paramMap.keySet()) {
