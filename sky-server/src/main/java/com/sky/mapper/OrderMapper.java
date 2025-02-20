@@ -34,4 +34,12 @@ public interface OrderMapper {
      * @return
      */
     Page<Orders> getByUserId(OrdersPageQueryDTO ordersPageQueryDTO);
+
+    /**
+     * 根据订单id查询订单
+     * @param id
+     * @return
+     */
+    @Select("select * from sky_take_out.orders where id = #{id}")
+    Orders getByOrderId(Long id);
 }
