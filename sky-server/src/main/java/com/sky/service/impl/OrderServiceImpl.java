@@ -28,6 +28,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -267,5 +268,43 @@ public class OrderServiceImpl implements OrderService {
         }
         // 批量添加进购物车
         shoppingCartMapper.insertBatch(cartList);
+    }
+
+    /**
+     * 订单搜索
+     * @param ordersPageQueryDTO
+     * @return
+     */
+    @Override
+    public PageResult conditionSearch(OrdersPageQueryDTO ordersPageQueryDTO) {
+        PageHelper.startPage(ordersPageQueryDTO.getPage(), ordersPageQueryDTO.getPageSize());
+
+        // 查找出符合条件的订单集合
+        Page<Orders> ordersPage = orderMapper.getByUserId(ordersPageQueryDTO);
+        List<OrderVO> voList = new ArrayList<>();
+        if(ordersPage != null && ordersPage.getTotal() > 0){
+            for (Orders order : ordersPage) {
+                // 获取订单明细中的菜名
+                String dishName = getNameFromOrderDetail(order);
+                OrderVO orderVO = new OrderVO();
+                BeanUtils.copyProperties(order, orderVO);
+                orderVO.setOrderDishes(dishName);
+                voList.add(orderVO);
+            }
+        }
+        return new PageResult(ordersPage.getTotal(), voList);
+    }
+    
+    private String getNameFromOrderDetail(Orders orders){
+        Long OrderId = orders.getId();
+        List<OrderDetail> detailList = orderDetailMapper.getByOrderId(OrderId);
+        // 使用steam进行流操作
+        List<String> dishList = detailList.stream().map(x -> {
+            // map将detailList中的OrderDetail对象映射为字符串
+            String Orderdish = x.getName() + "*" + x.getNumber() + ";";
+            return Orderdish;
+        }).collect(Collectors.toList()); // 将流操作的结果收集到list中
+        // join方法拼接字符串， delimiter为分割符
+        return String.join("", dishList);
     }
 }

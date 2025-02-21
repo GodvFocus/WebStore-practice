@@ -21,4 +21,12 @@ public interface OrderDetailMapper {
      */
     @Select("select * from sky_take_out.order_detail where order_id = #{orderId}")
     List<OrderDetail> getByOrderId(Long orderId);
+
+//    /**
+//     * 获取订单明细中菜名的集合
+//     * @param orderId
+//     * @return
+//     */
+//    @Select("select name from sky_take_out.order_detail where order_id = #{orderId}")
+//    List<String> getNameByOrderId(Long orderId);
 }
