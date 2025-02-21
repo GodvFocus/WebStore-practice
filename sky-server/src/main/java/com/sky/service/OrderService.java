@@ -68,4 +68,10 @@ public interface OrderService {
      * @return
      */
     OrderStatisticsVO OrderStatistics();
+
+    /**
+     * 接单
+     * @param id
+     */
+    void ConfirmOrder(Long id);
 }
