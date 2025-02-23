@@ -105,11 +105,16 @@ public class UserOrderController {
         return Result.success();
     }
 
+    /**
+     * 用户催单
+     * @param id
+     * @return
+     */
     @GetMapping("/reminder/{id}")
     @ApiOperation("催单")
     public Result reminderOrder(@PathVariable Long id){
         log.info("催单{}", id);
-        // todo 催单service
+        orderService.reminderOrder(id);
         return Result.success();
     }
 }
