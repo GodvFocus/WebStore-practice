@@ -1,9 +1,13 @@
 package com.sky.service.impl;
 
+import com.sky.dto.GoodsSalesDTO;
 import com.sky.entity.Orders;
+import com.sky.mapper.OrderMapper;
 import com.sky.mapper.ReportMapper;
 import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
+import com.sky.vo.OrderReportVO;
+import com.sky.vo.SalesTop10ReportVO;
 import com.sky.vo.TurnoverReportVO;
 import com.sky.vo.UserReportVO;
 import org.apache.commons.lang.StringUtils;
@@ -17,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ReportServiceImpl implements ReportService {
@@ -25,6 +30,8 @@ public class ReportServiceImpl implements ReportService {
     private ReportMapper reportMapper;
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private OrderMapper orderMapper;
 
     /**
      * 营业额统计
@@ -98,6 +105,72 @@ public class ReportServiceImpl implements ReportService {
                 .dateList(StringUtils.join(dateList, ","))
                 .totalUserList(StringUtils.join(totalUserList, ","))
                 .newUserList(StringUtils.join(newUserList, ","))
+                .build();
+    }
+
+    /**
+     * 用户统计
+     * @param begin
+     * @param end
+     * @return
+     */
+    @Override
+    public OrderReportVO orderReport(LocalDate begin, LocalDate end) {
+        // 获取指定区间内的日期
+        List<LocalDate> dateList = getLocalDates(begin, end);
+
+        // 每日订单数
+        List<Integer> dailyOrderList = new ArrayList<>();
+        // 每日有效订单数
+        List<Integer> validDailyOrderList = new ArrayList<>();
+        for (LocalDate date : dateList) {
+            LocalDateTime beginTime = LocalDateTime.of(date, LocalTime.MIN);
+            LocalDateTime endTime = LocalDateTime.of(date, LocalTime.MAX);
+
+            Map map = new HashMap();
+            map.put("begin", beginTime);
+            map.put("end", endTime);
+            // select count(id) from orders where order_time <= endTime and create_time >= beginTime
+            dailyOrderList.add(orderMapper.countOrderByCondition(map));
+            map.put("status", Orders.COMPLETED);
+            // select count(id) from orders where order_time <= endTime and create_time >= beginTime and status = 5
+            validDailyOrderList.add(orderMapper.countOrderByCondition(map));
+        }
+        Integer totalOrder = dailyOrderList.stream().reduce(Integer::sum).get();
+        Integer vaildOrder = validDailyOrderList.stream().reduce(Integer::sum).get();
+        Double orderCompletionRate = 0.0;
+        if(totalOrder != 0){
+            orderCompletionRate = vaildOrder.doubleValue() / totalOrder;
+        }
+        return OrderReportVO.builder()
+                .dateList(StringUtils.join(dateList, ","))
+                .orderCountList(StringUtils.join(dailyOrderList, ","))
+                .validOrderCountList(StringUtils.join(validDailyOrderList, ","))
+                .totalOrderCount(totalOrder)
+                .validOrderCount(vaildOrder)
+                .orderCompletionRate(orderCompletionRate)
+                .build();
+
+    }
+
+    /**
+     * 查询销量排名top10
+     * @param begin
+     * @param end
+     * @return
+     */
+    @Override
+    public SalesTop10ReportVO top10Report(LocalDate begin, LocalDate end) {
+        LocalDateTime beginTime = LocalDateTime.of(begin, LocalTime.MIN);
+        LocalDateTime endTime = LocalDateTime.of(end, LocalTime.MAX);
+
+        List<GoodsSalesDTO> sales = orderMapper.getSalesByTime(beginTime, endTime);
+        // 分别从数据中获取name和number各成一个list
+        List<String> nameList = sales.stream().map(GoodsSalesDTO::getName).collect(Collectors.toList());
+        List<Integer> numberList = sales.stream().map(GoodsSalesDTO::getNumber).collect(Collectors.toList());
+        return SalesTop10ReportVO.builder()
+                .nameList(StringUtils.join(nameList, ","))
+                .numberList(StringUtils.join(numberList, ","))
                 .build();
     }
 }

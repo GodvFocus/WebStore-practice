@@ -51,4 +51,33 @@
         </where>
         order by order_time desc
     </select>
+    
+    <select id="countOrderByCondition" resultType="java.lang.Integer">
+        select count(id) from sky_take_out.orders
+        <where>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="begin != null">
+                and order_time &gt;= #{begin}
+            </if>
+            <if test="end != null">
+                and order_time &lt;= #{end}
+            </if>
+        </where>
+    </select>
+
+    <select id="getSalesByTime" resultType="com.sky.dto.GoodsSalesDTO">
+        select od.name, sum(od.number) as number from sky_take_out.order_detail od, sky_take_out.orders o
+        where o.id = od.order_id and o.status = 5
+        <if test="begin != null">
+            and o.order_time &gt; #{begin}
+        </if>
+        <if test="end">
+            and o.order_time &lt; #{end}
+        </if>
+        group by od.name
+        order by number desc
+        limit 0,10
+    </select>
 </mapper>
